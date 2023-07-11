@@ -4,13 +4,13 @@ import Home from "../pages/Home";
 import Reactify from "../pages/Reactify"; 
 const routes = [
   {
-    path: "/",
+    path: "/home",
     exact: true,
     element: <Home />,
     private: false,
   },
   {
-    path: "/app",
+    path: "/reactify",
     exact: true,
     element: <Reactify />,
     private: false,
