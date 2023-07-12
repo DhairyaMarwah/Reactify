@@ -9,99 +9,126 @@ const createRoutes = require("../scripts/createRoutes");
 
 // Function to handle form submission and generate React app
 exports.generateReactApp = async (req, res) => {
-  try {
-    const {
-      environment,
-      buildTool,
-      projectName,
-      packages,
-      pages,
-      components,
-    } = req.body;
+    try {
+        const {
+            environment,
+            buildTool,
+            projectName,
+            packages,
+            pages,
+            components,
+        } = req.body;
 
-    const appDirectory = path.join(__dirname, `../temp/${projectName}`);
-    fs.mkdirSync(appDirectory);
-    process.chdir(appDirectory);
+        const appDirectory = path.join(__dirname, `../temp/${projectName}`);
+        fs.mkdirSync(appDirectory);
+        process.chdir(appDirectory);
 
-    const createReactAppProcess = spawn(buildTool, ["create-react-app", "."]);
+        const createReactAppProcess = spawn(buildTool, [
+            "create-react-app",
+            ".",
+        ]);
 
-    createReactAppProcess.stdout.on("data", (data) => {
-      console.log(data.toString());
-    });
+        createReactAppProcess.stdout.on("data", (data) => {
+            console.log(data.toString());
+        });
 
-    createReactAppProcess.stderr.on("data", (data) => {
-      console.error(data.toString());
-    });
+        createReactAppProcess.stderr.on("data", (data) => {
+            console.error(data.toString());
+        });
 
-    await new Promise((resolve, reject) => {
-      createReactAppProcess.on("close", (code) => {
-        if (code === 0) {
-          resolve();
+        await new Promise((resolve, reject) => {
+            createReactAppProcess.on("close", (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error("Failed to create React app"));
+                }
+            });
+        });
+
+        fs.rmSync(path.join(appDirectory, "node_modules"), {
+            recursive: true,
+            force: true,
+        });
+
+        fs.mkdirSync("./src/components");
+        components.forEach((component) => {
+            const { name } = component;
+            fs.writeFileSync(
+                `./src/components/${name}.js`,
+                createComponents(name)
+            );
+        });
+
+        fs.mkdirSync("./src/pages");
+        pages.forEach((page) => {
+            const { name } = page;
+            fs.writeFileSync(`./src/pages/${name}.js`, createPages(name));
+        });
+
+        fs.mkdirSync("./src/routes");
+        fs.writeFileSync(`./src/routes/routes.js`, createRoutes(pages));
+
+        fs.writeFileSync(`./src/App.js`, appContent);
+
+        let installPackagesCommand;
+        if (buildTool === "npx") {
+            installPackagesCommand = spawn("npm", ["i", ...packages]);
+        } else if (buildTool === "yarn") {
+            installPackagesCommand = spawn("yarn", ["add", ...packages]);
         } else {
-          reject(new Error("Failed to create React app"));
+            throw new Error("Unsupported build tool");
         }
-      });
-    });
 
-    fs.rmSync(path.join(appDirectory, "node_modules"), {
-      recursive: true,
-      force: true,
-    });
+        installPackagesCommand.stdout.on("data", (data) => {
+            console.log(data.toString());
+        });
 
-    fs.mkdirSync("./src/components");
-    components.forEach((component) => {
-      const { name } = component;
-      fs.writeFileSync(
-        `./src/components/${name}.js`,
-        createComponents(name)
-      );
-    });
+        installPackagesCommand.stderr.on("data", (data) => {
+            console.error(data.toString());
+        });
 
-    fs.mkdirSync("./src/pages");
-    pages.forEach((page) => {
-      const { name } = page;
-      fs.writeFileSync(`./src/pages/${name}.js`, createPages(name));
-    });
+        await new Promise((resolve, reject) => {
+            installPackagesCommand.on("close", (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error("Failed to install packages"));
+                }
+            });
+        });
 
-    fs.mkdirSync("./src/routes");
-    fs.writeFileSync(`./src/routes/routes.js`, createRoutes(pages));
+        const output = fs.createWriteStream(
+            path.join(__dirname, "../temp/react-app.zip")
+        );
+        const archive = archiver("zip", {
+            zlib: { level: 9 },
+        });
 
-    fs.writeFileSync(`./src/App.js`, appContent);
+        archive.directory(appDirectory, false);
+        archive.glob("!node_modules/**");
+        archive.pipe(output);
+        archive.finalize();
 
-    const output = fs.createWriteStream(
-      path.join(__dirname, "../temp/react-app.zip")
-    );
-    const archive = archiver("zip", {
-      zlib: { level: 9 },
-    });
-
-    archive.directory(appDirectory, false);
-    archive.glob("!node_modules/**");
-    archive.pipe(output);
-    archive.finalize();
-
-    output.on("close", () => {
-      const downloadUrl = `/api/download?filename=react-app.zip`;
-        res.json({ downloadUrl });
-    });
-  } catch (error) {
-    console.error("Error generating React app:", error);
-    res.status(500).json({ error: "Failed to create React app" });
-  }
+        output.on("close", () => {
+            const downloadUrl = `/api/download?filename=react-app.zip`;
+            res.json({ downloadUrl });
+        });
+    } catch (error) {
+        console.error("Error generating React app:", error);
+        res.status(500).json({ error: "Failed to create React app" });
+    }
 };
 
-
-
-
 exports.downloadFile = (req, res) => {
-  const { filename } = req.query;
-  const filePath = path.join(__dirname, "../temp", filename);
-  res.download(filePath, (err) => {
-    if (err) {
-      console.error("Error sending file:", err);
-    } else {
-      // Clean up the temporary files/directory
-      fs.rmSync(filePath);
-    }
-  });
+    const { filename } = req.query;
+    const filePath = path.join(__dirname, "../temp", filename);
+    res.download(filePath, (err) => {
+        if (err) {
+            console.error("Error sending file:", err);
+        } else {
+            // Clean up the temporary files/directory
+            fs.rmSync(filePath);
+        }
+    });
 };
