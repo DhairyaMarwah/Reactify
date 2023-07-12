@@ -1,29 +1,123 @@
 import React, { useState } from "react";
 import { SubmitForm } from "../../services/submitForm";
-
+import AddIcon from "../../assets/add.svg";
+import NextIcon from "../../assets/next.svg";
+import BackIcon from "../../assets/back.svg";
+import Lottie from "lottie-react";
+import * as animationData from "../../assets/animation/animation.json";
 export default function Index() {
-    const [downloadUrl, setdownloadUrl] = useState();
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
+    const [currentSection, setCurrentSection] = useState(0);
+    const [downloadUrl, setDownloadUrl] = useState("");
     const [environment, setEnvironment] = useState("");
     const [buildTool, setBuildTool] = useState("");
     const [projectName, setProjectName] = useState("");
     const [packages, setPackages] = useState([]);
     const [pages, setPages] = useState([{ name: "" }]);
     const [components, setComponents] = useState([{ name: "", usedIn: "" }]);
+    const [isCreatingApp, setIsCreatingApp] = useState(false);
 
-    const handlePageChange = (index, value) => {
-        const updatedPages = [...pages];
-        updatedPages[index].name = value;
-        setPages(updatedPages);
+    const sections = [
+        {
+            label: "Choose Environment",
+            value: environment,
+            setValue: setEnvironment,
+            inputType: "select",
+            options: [
+                { value: "", label: "Select Environment" },
+                { value: "create-react-app", label: "create-react-app" },
+            ],
+        },
+        {
+            label: "Build Tool",
+            value: buildTool,
+            setValue: setBuildTool,
+            inputType: "select",
+            options: [
+                { value: "", label: "Select Build Tool" },
+                { value: "yarn", label: "yarn" },
+                { value: "npx", label: "npx" },
+            ],
+        },
+        {
+            label: "Whats will be the name of your React App",
+            value: projectName,
+            setValue: setProjectName,
+            placeholder: "Project Name",
+            inputType: "text",
+        },
+        {
+            label: "Packages {comma-separated}",
+            value: packages.join(","),
+            setValue: (value) => setPackages(value.split(",")),
+            inputType: "text",
+        },
+        {
+            label: "Pages",
+            value: pages,
+            placeholder: "Page Name",
+            setValue: setPages,
+            inputType: "array",
+            inputKey: "name",
+        },
+        {
+            label: "Components",
+            value: components,
+            placeholder: "Component Name",
+            setValue: setComponents,
+            inputType: "array",
+            inputKey: "name",
+            additionalFields: [
+                {
+                    label: "Used In",
+                    valueKey: "usedIn",
+                    options: pages.map((page) => ({
+                        value: page.name,
+                        label: page.name,
+                    })),
+                },
+            ],
+        },
+    ];
+
+    const handleNext = () => {
+        setCurrentSection(currentSection + 1);
     };
 
-    const handleComponentChange = (index, field, value) => {
-        const updatedComponents = [...components];
-        updatedComponents[index][field] = value;
-        setComponents(updatedComponents);
+    const handleBack = () => {
+        setCurrentSection(currentSection - 1);
+    };
+
+    const handleAddItem = (sectionIndex) => {
+        const updatedSection = sections[sectionIndex];
+        const newItem = { [updatedSection.inputKey]: "" };
+        updatedSection.setValue([...updatedSection.value, newItem]);
+    };
+
+    const handleInputChange = (sectionIndex, itemIndex, e) => {
+        const updatedSection = sections[sectionIndex];
+        const updatedValue = [...updatedSection.value];
+        updatedValue[itemIndex][updatedSection.inputKey] = e.target.value;
+        updatedSection.setValue(updatedValue);
+    };
+
+    const handleAdditionalFieldChange = (sectionIndex, itemIndex, field, e) => {
+        const updatedSection = sections[sectionIndex];
+        const updatedValue = [...updatedSection.value];
+        updatedValue[itemIndex][field] = e.target.value;
+        updatedSection.setValue(updatedValue);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsCreatingApp(true);
         const payload = {
             environment,
             buildTool,
@@ -33,143 +127,188 @@ export default function Index() {
             components,
         };
         const res = await SubmitForm(payload);
-        setdownloadUrl(res.downloadUrl);
+        setDownloadUrl(res.downloadUrl);
         console.log(res);
-        // Reset form fields
-        setEnvironment("");
-        setBuildTool("");
-        setProjectName("");
-        setPackages([]);
-        setPages([{ name: "" }]);
-        setComponents([{ name: "", usedIn: "" }]);
+        setIsCreatingApp(false);
     };
-    const handleDownload = () => {
-        window.location.href = downloadUrl;
-    };
-    return (
-        <form onSubmit={handleSubmit}>
-            <label>
-                Environment:
-                <select
-                    value={environment}
-                    onChange={(e) => setEnvironment(e.target.value)}
-                    required
-                >
-                    <option value="">Select Environment</option>
-                    <option value="create-react-app">create-react-app</option>
-                </select>
-            </label>
-            <br />
-            <label>
-                Build Tool:
-                <select
-                    value={buildTool}
-                    onChange={(e) => setBuildTool(e.target.value)}
-                    required
-                >
-                    <option value="">Select Build Tool</option>
-                    <option value="yarn">yarn</option>
-                    <option value="npx">npx</option>
-                </select>
-            </label>
-            <br />
-            <label>
-                Project Name:
-                <input
-                    type="text"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    required
-                />
-            </label>
-            <br />
-            <label>
-                Packages (comma-separated):
-                <input
-                    type="text"
-                    value={packages}
-                    onChange={(e) => setPackages(e.target.value.split(","))}
-                    required
-                />
-            </label>
-            <br />
-            <label>
-                Pages:
-                {pages.map((page, index) => (
-                    <div key={index}>
-                        <input
-                            type="text"
-                            value={page.name}
-                            onChange={(e) =>
-                                handlePageChange(index, e.target.value)
-                            }
-                            required
-                            placeholder="Page Name"
-                        />
-                    </div>
-                ))}
-                <button
-                    type="button"
-                    onClick={() => setPages([...pages, { name: "" }])}
-                >
-                    Add Page
-                </button>
-            </label>
-            <br />
-            <label>
-                Components:
-                {components.map((component, index) => (
-                    <div key={index}>
-                        <input
-                            type="text"
-                            value={component.name}
-                            onChange={(e) =>
-                                handleComponentChange(
-                                    index,
-                                    "name",
-                                    e.target.value
-                                )
-                            }
-                            required
-                            placeholder="Component Name"
-                        />
-                        <select
-                            value={component.usedIn}
-                            onChange={(e) =>
-                                handleComponentChange(
-                                    index,
-                                    "usedIn",
-                                    e.target.value
-                                )
-                            }
-                            required
-                        >
-                            <option value="">Select Used In</option>
-                            {pages.map((page, pageIndex) => (
-                                <option key={pageIndex} value={page.name}>
-                                    {page.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                ))}
-                <button
-                    type="button"
-                    onClick={() =>
-                        setComponents([...components, { name: "", usedIn: "" }])
-                    }
-                >
-                    Add Component
-                </button>
-            </label>
-            <br />
-            <button type="submit">Create App</button>
-            <a href={`http://localhost:3001${downloadUrl}`} download="reactify.zip">
 
-            <button  type="button"  >
-                Download
-            </button>
-            </a>
-        </form>
+    const section = sections[currentSection];
+
+    return (
+        <>
+            {isCreatingApp ? (
+                <>
+                    <div className="lottie-container">
+                        <h1>Your React App is getting created ...</h1>
+                        <Lottie animationData={animationData} />
+                    </div>
+                </>
+            ) : (
+                <>
+                    <form onSubmit={handleSubmit}>
+                        <p>{section.label}:</p>
+                        {section.inputType === "select" ? (
+                            <select
+                                value={section.value}
+                                onChange={(e) =>
+                                    section.setValue(e.target.value)
+                                }
+                                required
+                            >
+                                {section.options.map((option) => (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : section.inputType === "text" ? (
+                            <input
+                                type="text"
+                                value={section.value}
+                                placeholder={section.placeholder}
+                                onChange={(e) =>
+                                    section.setValue(e.target.value)
+                                }
+                                required
+                            />
+                        ) : section.inputType === "array" ? (
+                            <div className="container-field">
+                                {section.value.map((item, index) => (
+                                    <div
+                                        className="container-field"
+                                        key={index}
+                                    >
+                                        <input
+                                            type="text"
+                                            value={item[section.inputKey]}
+                                            onChange={(e) =>
+                                                handleInputChange(
+                                                    currentSection,
+                                                    index,
+                                                    e
+                                                )
+                                            }
+                                            required
+                                            placeholder={section.inputKey}
+                                        />
+                                        {section.additionalFields &&
+                                            section.additionalFields.map(
+                                                (field) => (
+                                                    <select
+                                                        key={field.label}
+                                                        value={
+                                                            item[field.valueKey]
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleAdditionalFieldChange(
+                                                                currentSection,
+                                                                index,
+                                                                field.valueKey,
+                                                                e
+                                                            )
+                                                        }
+                                                        required
+                                                    >
+                                                        <option value="">
+                                                            Select {field.label}
+                                                        </option>
+                                                        {field.options.map(
+                                                            (option) => (
+                                                                <option
+                                                                    key={
+                                                                        option.value
+                                                                    }
+                                                                    value={
+                                                                        option.value
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        option.label
+                                                                    }
+                                                                </option>
+                                                            )
+                                                        )}
+                                                    </select>
+                                                )
+                                            )}
+                                    </div>
+                                ))}
+
+                                {/* <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleAddItem(currentSection)
+                                    }
+                                >
+                                    Add {section.label}
+                                </button> */}
+                                <div
+                                    className="addicon"
+                                    onClick={() =>
+                                        handleAddItem(currentSection)
+                                    }
+                                >
+                                    <img src={AddIcon} alt="" />
+                                </div>
+                            </div>
+                        ) : null}
+
+                        <div className="step-btns">
+                            {currentSection < sections.length - 1 && (
+                                <button type="button" onClick={handleNext}>
+                                    Submit and Continue{" "}
+                                    <img src={NextIcon} alt="" />
+                                </button>
+                            )}
+                            {currentSection > 0 && (
+                                <button
+                                    className="secondary"
+                                    type="button"
+                                    onClick={()=>{
+                                        handleBack()
+                                        setDownloadUrl("")
+                                    }}
+                                >
+                                    <img src={BackIcon} alt="" /> Go back and
+                                    edit
+                                </button>
+                            )}
+                        </div>
+
+                        {currentSection === sections.length - 1 && (
+                            <div>
+                                 
+                                {!downloadUrl!="" ? (
+                                    <>
+                                        <div className="step-btns">
+                                            <button type="submit">
+                                                Create App
+                                                <img src={NextIcon} alt="" />
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <a
+                                            href={`http://localhost:3001${downloadUrl}`}
+                                            download="reactify.zip"
+                                        >
+                                            <div className="step-btns">
+                                                <button type="button">
+                                                    Download
+                                                </button>
+                                            </div>
+                                        </a>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </form>
+                </>
+            )}
+        </>
     );
 }
