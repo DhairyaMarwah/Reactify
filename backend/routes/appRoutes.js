@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const appController = require("../controllers/appController");
+const appController = require("../controllers/appController3");
 
 // Route to handle form submission and generate React app
 router.post("/generateapp", appController.generateReactApp);

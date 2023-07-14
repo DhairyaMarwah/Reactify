@@ -22,11 +22,13 @@ exports.generateReactApp = async (req, res) => {
         const appDirectory = path.join(__dirname, `../temp/${projectName}`);
         fs.mkdirSync(appDirectory);
         process.chdir(appDirectory);
+        let createReactAppProcess;
 
-        const createReactAppProcess = spawn(buildTool, [
-            "create-react-app",
-            ".",
-        ]);
+        if (buildTool === "pnpm") {
+            createReactAppProcess = spawn(buildTool, ["create","react-app", "."]);
+        } else {
+            createReactAppProcess = spawn(buildTool, ["create-react-app", "."]);
+        }
 
         createReactAppProcess.stdout.on("data", (data) => {
             console.log(data.toString());
@@ -76,6 +78,8 @@ exports.generateReactApp = async (req, res) => {
             installPackagesCommand = spawn("npm", ["i", ...packages]);
         } else if (buildTool === "yarn") {
             installPackagesCommand = spawn("yarn", ["add", ...packages]);
+        } else if (buildTool === "pnpm") {
+            installPackagesCommand = spawn("pnpm", ["add", ...packages]);
         } else {
             throw new Error("Unsupported build tool");
         }

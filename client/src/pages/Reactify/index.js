@@ -6,14 +6,6 @@ import BackIcon from "../../assets/back.svg";
 import Lottie from "lottie-react";
 import * as animationData from "../../assets/animation/animation.json";
 export default function Index() {
-    const defaultOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: animationData,
-        rendererSettings: {
-            preserveAspectRatio: "xMidYMid slice",
-        },
-    };
     const [currentSection, setCurrentSection] = useState(0);
     const [downloadUrl, setDownloadUrl] = useState("");
     const [environment, setEnvironment] = useState("");
@@ -44,6 +36,7 @@ export default function Index() {
                 { value: "", label: "Select Build Tool" },
                 { value: "yarn", label: "yarn" },
                 { value: "npx", label: "npx" },
+                { value: "pnpm", label: "pnpm" },
             ],
         },
         {
@@ -136,14 +129,14 @@ export default function Index() {
 
     return (
         <>
-            {isCreatingApp ? (
+            {/* {isCreatingApp ? (
                 <>
                     <div className="lottie-container">
                         <h1>Your React App is getting created ...</h1>
                         <Lottie animationData={animationData} />
                     </div>
                 </>
-            ) : (
+            ) : ( */}
                 <>
                     <form onSubmit={handleSubmit}>
                         <p>{section.label}:</p>
@@ -267,9 +260,9 @@ export default function Index() {
                                 <button
                                     className="secondary"
                                     type="button"
-                                    onClick={()=>{
-                                        handleBack()
-                                        setDownloadUrl("")
+                                    onClick={() => {
+                                        handleBack();
+                                        setDownloadUrl("");
                                     }}
                                 >
                                     <img src={BackIcon} alt="" /> Go back and
@@ -280,8 +273,7 @@ export default function Index() {
 
                         {currentSection === sections.length - 1 && (
                             <div>
-                                 
-                                {!downloadUrl!="" ? (
+                                {!downloadUrl != "" ? (
                                     <>
                                         <div className="step-btns">
                                             <button type="submit">
@@ -308,7 +300,7 @@ export default function Index() {
                         )}
                     </form>
                 </>
-            )}
+             {/* )} */}
         </>
     );
 }
