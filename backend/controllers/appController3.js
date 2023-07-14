@@ -17,6 +17,7 @@ exports.generateReactApp = async (req, res) => {
             packages,
             pages,
             components,
+            projectType,
         } = req.body;
         let templateDirectory;
         if (buildTool === "pnpm") {
@@ -40,6 +41,10 @@ exports.generateReactApp = async (req, res) => {
         // const appDirectory = path.join(__dirname, `../temp/${projectName}`);
         fs.mkdirSync(appDirectory);
         fs.copySync(templateDirectory, appDirectory);
+
+
+
+        if(projectType === "basic"){
 
         const componentsDirectory = path.join(appDirectory, "src/components");
         fs.mkdirSync(componentsDirectory, { recursive: true });
@@ -74,6 +79,10 @@ exports.generateReactApp = async (req, res) => {
         fs.writeFileSync(path.join(appDirectory, "src/App.js"), appContent, {
             flag: "w",
         });
+    }
+    else{
+        console.log("projectType is not basic");
+    }
 
         const output = fs.createWriteStream(
             path.join(__dirname, "../temp/react-app.zip")

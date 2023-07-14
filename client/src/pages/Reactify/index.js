@@ -3,6 +3,7 @@ import { SubmitForm } from "../../services/submitForm";
 import AddIcon from "../../assets/add.svg";
 import NextIcon from "../../assets/next.svg";
 import BackIcon from "../../assets/back.svg";
+import Basic from "../../assets/basic.png";
 import Lottie from "lottie-react";
 import * as animationData from "../../assets/animation/animation.json";
 export default function Index() {
@@ -11,6 +12,7 @@ export default function Index() {
     const [environment, setEnvironment] = useState("");
     const [buildTool, setBuildTool] = useState("");
     const [projectName, setProjectName] = useState("");
+    const [projectType, setProjectType] = useState("");
     const [packages, setPackages] = useState([]);
     const [pages, setPages] = useState([{ name: "" }]);
     const [components, setComponents] = useState([{ name: "", usedIn: "" }]);
@@ -39,6 +41,20 @@ export default function Index() {
                 { value: "pnpm", label: "pnpm" },
             ],
         },
+        {
+            label: "Type of App",
+            value: null,
+            render: (
+                <div className="typeOf-App">
+                    <div onClick={() => setProjectType("basic")}>
+                        <img src={Basic} alt="" />
+                        <p>Basic Setup</p>
+                    </div>
+                </div>
+            ),
+            inputType: "render",
+        },
+
         {
             label: "Whats will be the name of your React App",
             value: projectName,
@@ -118,6 +134,7 @@ export default function Index() {
             packages,
             pages,
             components,
+            projectType,
         };
         const res = await SubmitForm(payload);
         setDownloadUrl(res.downloadUrl);
@@ -137,170 +154,153 @@ export default function Index() {
                     </div>
                 </>
             ) : ( */}
-                <>
-                    <form onSubmit={handleSubmit}>
-                        <p>{section.label}:</p>
-                        {section.inputType === "select" ? (
-                            <select
-                                value={section.value}
-                                onChange={(e) =>
-                                    section.setValue(e.target.value)
-                                }
-                                required
-                            >
-                                {section.options.map((option) => (
-                                    <option
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                        ) : section.inputType === "text" ? (
-                            <input
-                                type="text"
-                                value={section.value}
-                                placeholder={section.placeholder}
-                                onChange={(e) =>
-                                    section.setValue(e.target.value)
-                                }
-                                required
-                            />
-                        ) : section.inputType === "array" ? (
-                            <div className="container-field">
-                                {section.value.map((item, index) => (
-                                    <div
-                                        className="container-field"
-                                        key={index}
-                                    >
-                                        <input
-                                            type="text"
-                                            value={item[section.inputKey]}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    currentSection,
-                                                    index,
-                                                    e
-                                                )
-                                            }
-                                            required
-                                            placeholder={section.inputKey}
-                                        />
-                                        {section.additionalFields &&
-                                            section.additionalFields.map(
-                                                (field) => (
-                                                    <select
-                                                        key={field.label}
-                                                        value={
-                                                            item[field.valueKey]
-                                                        }
-                                                        onChange={(e) =>
-                                                            handleAdditionalFieldChange(
-                                                                currentSection,
-                                                                index,
-                                                                field.valueKey,
-                                                                e
-                                                            )
-                                                        }
-                                                        required
-                                                    >
-                                                        <option value="">
-                                                            Select {field.label}
-                                                        </option>
-                                                        {field.options.map(
-                                                            (option) => (
-                                                                <option
-                                                                    key={
-                                                                        option.value
-                                                                    }
-                                                                    value={
-                                                                        option.value
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        option.label
-                                                                    }
-                                                                </option>
-                                                            )
-                                                        )}
-                                                    </select>
-                                                )
-                                            )}
-                                    </div>
-                                ))}
-
-                                {/* <button
-                                    type="button"
-                                    onClick={() =>
-                                        handleAddItem(currentSection)
-                                    }
-                                >
-                                    Add {section.label}
-                                </button> */}
-                                <div
-                                    className="addicon"
-                                    onClick={() =>
-                                        handleAddItem(currentSection)
-                                    }
-                                >
-                                    <img src={AddIcon} alt="" />
+            <>
+                <form onSubmit={handleSubmit}>
+                    <p>{section.label}:</p>
+                    {section.inputType === "select" ? (
+                        <select
+                            value={section.value}
+                            onChange={(e) => section.setValue(e.target.value)}
+                            required
+                        >
+                            {section.options.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    ) : section.inputType === "text" ? (
+                        <input
+                            type="text"
+                            value={section.value}
+                            placeholder={section.placeholder}
+                            onChange={(e) => section.setValue(e.target.value)}
+                            required
+                        />
+                    ) : section.inputType === "array" ? (
+                        <div className="container-field">
+                            {section.value.map((item, index) => (
+                                <div className="container-field" key={index}>
+                                    <input
+                                        type="text"
+                                        value={item[section.inputKey]}
+                                        onChange={(e) =>
+                                            handleInputChange(
+                                                currentSection,
+                                                index,
+                                                e
+                                            )
+                                        }
+                                        required
+                                        placeholder={section.inputKey}
+                                    />
+                                    {section.additionalFields &&
+                                        section.additionalFields.map(
+                                            (field) => (
+                                                <select
+                                                    key={field.label}
+                                                    value={item[field.valueKey]}
+                                                    onChange={(e) =>
+                                                        handleAdditionalFieldChange(
+                                                            currentSection,
+                                                            index,
+                                                            field.valueKey,
+                                                            e
+                                                        )
+                                                    }
+                                                    required
+                                                >
+                                                    <option value="">
+                                                        Select {field.label}
+                                                    </option>
+                                                    {field.options.map(
+                                                        (option) => (
+                                                            <option
+                                                                key={
+                                                                    option.value
+                                                                }
+                                                                value={
+                                                                    option.value
+                                                                }
+                                                            >
+                                                                {option.label}
+                                                            </option>
+                                                        )
+                                                    )}
+                                                </select>
+                                            )
+                                        )}
                                 </div>
+                            ))}
+
+                            {/* <button
+            type="button"
+            onClick={() => handleAddItem(currentSection)}
+        >
+            Add {section.label}
+        </button> */}
+                            <div
+                                className="addicon"
+                                onClick={() => handleAddItem(currentSection)}
+                            >
+                                <img src={AddIcon} alt="" />
                             </div>
-                        ) : null}
-
-                        <div className="step-btns">
-                            {currentSection < sections.length - 1 && (
-                                <button type="button" onClick={handleNext}>
-                                    Submit and Continue{" "}
-                                    <img src={NextIcon} alt="" />
-                                </button>
-                            )}
-                            {currentSection > 0 && (
-                                <button
-                                    className="secondary"
-                                    type="button"
-                                    onClick={() => {
-                                        handleBack();
-                                        setDownloadUrl("");
-                                    }}
-                                >
-                                    <img src={BackIcon} alt="" /> Go back and
-                                    edit
-                                </button>
-                            )}
                         </div>
+                    ) : section.inputType === "render" ? (
+                        <div className="container-field">{section.render}</div>
+                    ) : null}
 
-                        {currentSection === sections.length - 1 && (
-                            <div>
-                                {!downloadUrl != "" ? (
-                                    <>
+                    <div className="step-btns">
+                        {currentSection < sections.length - 1 && (
+                            <button type="button" onClick={handleNext}>
+                                Submit and Continue{" "}
+                                <img src={NextIcon} alt="" />
+                            </button>
+                        )}
+                        {currentSection > 0 && (
+                            <button
+                                className="secondary"
+                                type="button"
+                                onClick={() => {
+                                    handleBack();
+                                    setDownloadUrl("");
+                                }}
+                            >
+                                <img src={BackIcon} alt="" /> Go back and edit
+                            </button>
+                        )}
+                    </div>
+
+                    {currentSection === sections.length - 1 && (
+                        <div>
+                            {!downloadUrl != "" ? (
+                                <>
+                                    <div className="step-btns">
+                                        <button type="submit">
+                                            Create App
+                                            <img src={NextIcon} alt="" />
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <a
+                                        href={`http://localhost:3001${downloadUrl}`}
+                                        download="reactify.zip"
+                                    >
                                         <div className="step-btns">
-                                            <button type="submit">
-                                                Create App
-                                                <img src={NextIcon} alt="" />
+                                            <button type="button">
+                                                Download
                                             </button>
                                         </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <a
-                                            href={`http://localhost:3001${downloadUrl}`}
-                                            download="reactify.zip"
-                                        >
-                                            <div className="step-btns">
-                                                <button type="button">
-                                                    Download
-                                                </button>
-                                            </div>
-                                        </a>
-                                    </>
-                                )}
-                            </div>
-                        )}
-                    </form>
-                </>
-             {/* )} */}
+                                    </a>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </form>
+            </>
+            {/* )} */}
         </>
     );
 }
