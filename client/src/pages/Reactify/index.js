@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { SubmitForm } from "../../services/submitForm";
 import AddIcon from "../../assets/add.svg";
+import Remove from "../../assets/remove.svg";
 import NextIcon from "../../assets/next.svg";
 import BackIcon from "../../assets/back.svg";
 import Basic from "../../assets/basic.png";
@@ -8,6 +9,7 @@ import Lottie from "lottie-react";
 import * as animationData from "../../assets/animation/animation.json";
 export default function Index() {
     const [currentSection, setCurrentSection] = useState(0);
+    const [useApi, setuseApi] = useState("");
     const [downloadUrl, setDownloadUrl] = useState("");
     const [environment, setEnvironment] = useState("");
     const [buildTool, setBuildTool] = useState("");
@@ -17,6 +19,30 @@ export default function Index() {
     const [pages, setPages] = useState([{ name: "" }]);
     const [components, setComponents] = useState([{ name: "", usedIn: "" }]);
     const [isCreatingApp, setIsCreatingApp] = useState(false);
+    const [apiBaseUrl, setApiBaseUrl] = useState("");
+    const [apiConnections, setApiConnections] = useState([
+        { endpoint: "", requestType: "" },
+    ]);
+
+    console.log(useApi);
+    const handleAddApiConnection = () => {
+        setApiConnections([
+            ...apiConnections,
+            { endpoint: "", requestType: "" },
+        ]);
+    };
+
+    const handleRemoveApiConnection = (index) => {
+        const updatedConnections = [...apiConnections];
+        updatedConnections.splice(index, 1);
+        setApiConnections(updatedConnections);
+    };
+
+    const handleApiConnectionChange = (index, field, value) => {
+        const updatedConnections = [...apiConnections];
+        updatedConnections[index][field] = value;
+        setApiConnections(updatedConnections);
+    };
 
     const sections = [
         {
@@ -50,6 +76,10 @@ export default function Index() {
                         <img src={Basic} alt="" />
                         <p>Basic Setup</p>
                     </div>
+                    <div onClick={() => setProjectType("basic")}>
+                        <img src={Basic} alt="" />
+                        <p>Basic Setup</p>
+                    </div>
                 </div>
             ),
             inputType: "render",
@@ -76,6 +106,99 @@ export default function Index() {
             inputType: "array",
             inputKey: "name",
         },
+        {
+            value: null,
+            render: (
+                <div className="Api">
+                    <p>Does your app require API connectivity?</p>
+                    <select
+                        value={useApi}
+                        onChange={(e) => setuseApi(e.target.value)}
+                        name=""
+                      
+                        id=""
+                    >
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                    {useApi === "Yes" && (
+                        <div className="container-field | api-inputs">
+                            <input
+                                type="text"
+                                className="small-input"
+                                value={apiBaseUrl}
+                                placeholder="API Base URL"
+                                onChange={(e) => setApiBaseUrl(e.target.value)}
+                                required
+                            />
+                            {apiConnections.map((connection, index) => (
+                                <div className="container-field" key={index}>
+                                    <div className="container-field-flex">
+                                        <input
+                                            type="text"
+                                            value={connection.endpoint}
+                                            placeholder="Endpoint"
+                                            className="small-input"
+                                            onChange={(e) =>
+                                                handleApiConnectionChange(
+                                                    index,
+                                                    "endpoint",
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                        <select
+                                            className="small-input"
+                                            value={connection.requestType}
+                                            onChange={(e) =>
+                                                handleApiConnectionChange(
+                                                    index,
+                                                    "requestType",
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        >
+                                            <option value="">
+                                                Select Request Type
+                                            </option>
+                                            <option value="GET">GET</option>
+                                            <option value="POST">POST</option>
+                                            <option value="PUT">PUT</option>
+                                            <option value="DELETE">
+                                                DELETE
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="remove-btn | secondary"
+                                        onClick={() =>
+                                            handleRemoveApiConnection(index)
+                                        }
+                                    >
+                                        Remove API Connection
+                                        <img src={Remove} alt="" />
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                className="remove-btn"
+                                type="button"
+                                onClick={handleAddApiConnection}
+                            >
+                                Add API Connection
+                                <img src={AddIcon} alt="" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            ),
+            inputType: "render",
+        },
+
         {
             label: "Components",
             value: components,
@@ -135,6 +258,9 @@ export default function Index() {
             pages,
             components,
             projectType,
+            useApi,
+            apiBaseUrl,
+            apiConnections,
         };
         const res = await SubmitForm(payload);
         setDownloadUrl(res.downloadUrl);
@@ -156,7 +282,7 @@ export default function Index() {
             ) : ( */}
             <>
                 <form onSubmit={handleSubmit}>
-                    <p>{section.label}:</p>
+                    <p>{section.label}</p>
                     {section.inputType === "select" ? (
                         <select
                             value={section.value}

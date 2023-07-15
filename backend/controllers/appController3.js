@@ -6,6 +6,7 @@ const appContent = require("../scripts/appContent");
 const createComponents = require("../scripts/createComponents");
 const createPages = require("../scripts/createPages");
 const createRoutes = require("../scripts/createRoutes");
+const createServiceFileContent = require("../scripts/createServiceFileContent");
 
 // Function to handle form submission and generate React app
 exports.generateReactApp = async (req, res) => {
@@ -18,6 +19,9 @@ exports.generateReactApp = async (req, res) => {
             pages,
             components,
             projectType,
+            useApi,
+            apiBaseUrl,
+            apiConnections,
         } = req.body;
         let templateDirectory;
         if (buildTool === "pnpm") {
@@ -42,47 +46,76 @@ exports.generateReactApp = async (req, res) => {
         fs.mkdirSync(appDirectory);
         fs.copySync(templateDirectory, appDirectory);
 
-
-
-        if(projectType === "basic"){
-
-        const componentsDirectory = path.join(appDirectory, "src/components");
-        fs.mkdirSync(componentsDirectory, { recursive: true });
-
-        components.forEach((component) => {
-            const { name } = component;
-            fs.writeFileSync(
-                path.join(componentsDirectory, `${name}.js`),
-                createComponents(name)
+        if (projectType === "basic") {
+            const componentsDirectory = path.join(
+                appDirectory,
+                "src/components"
             );
-        });
+            fs.mkdirSync(componentsDirectory, { recursive: true });
 
-        const pagesDirectory = path.join(appDirectory, "src/pages");
-        fs.mkdirSync(pagesDirectory, { recursive: true });
+            components.forEach((component) => {
+                const { name } = component;
+                fs.writeFileSync(
+                    path.join(componentsDirectory, `${name}.js`),
+                    createComponents(name)
+                );
+            });
 
-        pages.forEach((page) => {
-            const { name } = page;
+            const pagesDirectory = path.join(appDirectory, "src/pages");
+            fs.mkdirSync(pagesDirectory, { recursive: true });
+
+            pages.forEach((page) => {
+                const { name } = page;
+                fs.writeFileSync(
+                    path.join(pagesDirectory, `${name}.js`),
+                    createPages(name)
+                );
+            });
+
+            const routesDirectory = path.join(appDirectory, "src/routes");
+            fs.mkdirSync(routesDirectory, { recursive: true });
+
             fs.writeFileSync(
-                path.join(pagesDirectory, `${name}.js`),
-                createPages(name)
+                path.join(routesDirectory, "routes.js"),
+                createRoutes(pages)
             );
-        });
 
-        const routesDirectory = path.join(appDirectory, "src/routes");
-        fs.mkdirSync(routesDirectory, { recursive: true });
+            fs.writeFileSync(
+                path.join(appDirectory, "src/App.js"),
+                appContent,
+                {
+                    flag: "w",
+                }
+            );
 
-        fs.writeFileSync(
-            path.join(routesDirectory, "routes.js"),
-            createRoutes(pages)
-        );
+            // create a service folder and inside it name the the file by endpoint name and i'll later add the content to it
+            if (useApi === "Yes") {
+                // create a .env file and add the apiBaseUrl to it
+                fs.writeFileSync(
+                    path.join(appDirectory, ".env"),
+                    `REACT_APP_API_URL=${apiBaseUrl}`,
+                    {
+                        flag: "w",
+                    }
+                );
 
-        fs.writeFileSync(path.join(appDirectory, "src/App.js"), appContent, {
-            flag: "w",
-        });
-    }
-    else{
-        console.log("projectType is not basic");
-    }
+                const servicesDirectory = path.join(
+                    appDirectory,
+                    "src/services"
+                );
+                fs.mkdirSync(servicesDirectory, { recursive: true });
+
+                apiConnections.forEach((connection) => {
+                    const { endpoint, requestType } = connection;
+                    fs.writeFileSync(
+                        path.join(servicesDirectory, `${endpoint}.js`),
+                        createServiceFileContent(endpoint, requestType)
+                    );
+                });
+            }
+        } else {
+            console.log("projectType is not basic");
+        }
 
         const output = fs.createWriteStream(
             path.join(__dirname, "../temp/react-app.zip")

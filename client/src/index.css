@@ -257,6 +257,46 @@ form p {
 a {
     text-decoration: none;
 }
+.api-inputs{
+    margin-top: 15px;
+}
+.remove-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #454545;
+    border: none;
+    text-align: center;
+    justify-content: center;
+    padding: 5px;
+    color: rgba(255, 255, 255,0.7);
+    font-size: 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    line-height: 23.315px;
+    width: 100%;
+    padding: 11px;
+    letter-spacing: -0.54px;
+}
+.container-field-flex{
+    display: flex;gap: 10px;
+}
+.small-input{
+    padding: 12px;font-size: 16px;
+    border-radius: 8px;
+}
+.remove-btn img {
+    transition: all 0.3s ease-in-out;
+    width: 22px;
+    opacity: 0.75;
+}
+.remove-btn:hover img{ 
+    opacity: 1;
+}
+.remove-btn.secondary{
+background-color: rgba(69, 69, 69,0.2);
+    /* border: 1px solid #fff; */
+}
 .typeOf-App {
     display: flex;
     align-items: flex-end;
@@ -268,10 +308,11 @@ a {
     cursor: pointer;
     transition: all 0.3s ease-in-out;
 }
-.typeOf-App > div img {border-radius: 12px;
+.typeOf-App > div img {
+    border-radius: 12px;
     border: 1.3px solid #242424;
 }
-.typeOf-App > div p{
+.typeOf-App > div p {
     font-size: 16px;
 }
 
