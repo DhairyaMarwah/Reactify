@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { SubmitForm } from "../../services/submitForm";
-import AddIcon from "../../assets/add.svg";
-import Remove from "../../assets/remove.svg";
+import AddIcon from "../../assets/add.svg"; 
 import NextIcon from "../../assets/next.svg";
 import BackIcon from "../../assets/back.svg";
-import Basic from "../../assets/basic.png";
 import Lottie from "lottie-react";
 import * as animationData from "../../assets/animation/animation.json";
+import ApiConnectivity from "../../components/ApiConnectivity";
+import AppTypeSelection from "../../components/AppTypeSelection";
 export default function Index() {
     const [currentSection, setCurrentSection] = useState(0);
     const [useApi, setuseApi] = useState("");
@@ -24,7 +24,7 @@ export default function Index() {
         { endpoint: "", requestType: "" },
     ]);
 
-    console.log(useApi);
+    // console.log(useApi);
     const handleAddApiConnection = () => {
         setApiConnections([
             ...apiConnections,
@@ -71,16 +71,7 @@ export default function Index() {
             label: "Type of App",
             value: null,
             render: (
-                <div className="typeOf-App">
-                    <div onClick={() => setProjectType("basic")}>
-                        <img src={Basic} alt="" />
-                        <p>Basic Setup</p>
-                    </div>
-                    <div onClick={() => setProjectType("basic")}>
-                        <img src={Basic} alt="" />
-                        <p>Basic Setup</p>
-                    </div>
-                </div>
+                <AppTypeSelection setProjectType={setProjectType} />
             ),
             inputType: "render",
         },
@@ -109,92 +100,16 @@ export default function Index() {
         {
             value: null,
             render: (
-                <div className="Api">
-                    <p>Does your app require API connectivity?</p>
-                    <select
-                        value={useApi}
-                        onChange={(e) => setuseApi(e.target.value)}
-                        name=""
-                      
-                        id=""
-                    >
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                    {useApi === "Yes" && (
-                        <div className="container-field | api-inputs">
-                            <input
-                                type="text"
-                                className="small-input"
-                                value={apiBaseUrl}
-                                placeholder="API Base URL"
-                                onChange={(e) => setApiBaseUrl(e.target.value)}
-                                required
-                            />
-                            {apiConnections.map((connection, index) => (
-                                <div className="container-field" key={index}>
-                                    <div className="container-field-flex">
-                                        <input
-                                            type="text"
-                                            value={connection.endpoint}
-                                            placeholder="Endpoint"
-                                            className="small-input"
-                                            onChange={(e) =>
-                                                handleApiConnectionChange(
-                                                    index,
-                                                    "endpoint",
-                                                    e.target.value
-                                                )
-                                            }
-                                            required
-                                        />
-                                        <select
-                                            className="small-input"
-                                            value={connection.requestType}
-                                            onChange={(e) =>
-                                                handleApiConnectionChange(
-                                                    index,
-                                                    "requestType",
-                                                    e.target.value
-                                                )
-                                            }
-                                            required
-                                        >
-                                            <option value="">
-                                                Select Request Type
-                                            </option>
-                                            <option value="GET">GET</option>
-                                            <option value="POST">POST</option>
-                                            <option value="PUT">PUT</option>
-                                            <option value="DELETE">
-                                                DELETE
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="remove-btn | secondary"
-                                        onClick={() =>
-                                            handleRemoveApiConnection(index)
-                                        }
-                                    >
-                                        Remove API Connection
-                                        <img src={Remove} alt="" />
-                                    </button>
-                                </div>
-                            ))}
-                            <button
-                                className="remove-btn"
-                                type="button"
-                                onClick={handleAddApiConnection}
-                            >
-                                Add API Connection
-                                <img src={AddIcon} alt="" />
-                            </button>
-                        </div>
-                    )}
-                </div>
+                <ApiConnectivity
+                    useApi={useApi}
+                    setUseApi={setuseApi}
+                    apiBaseUrl={apiBaseUrl}
+                    setApiBaseUrl={setApiBaseUrl}
+                    apiConnections={apiConnections}
+                    handleApiConnectionChange={handleApiConnectionChange}
+                    handleRemoveApiConnection={handleRemoveApiConnection}
+                    handleAddApiConnection={handleAddApiConnection}
+                />
             ),
             inputType: "render",
         },
@@ -264,7 +179,7 @@ export default function Index() {
         };
         const res = await SubmitForm(payload);
         setDownloadUrl(res.downloadUrl);
-        console.log(res);
+        // console.log(res);
         setIsCreatingApp(false);
     };
 
