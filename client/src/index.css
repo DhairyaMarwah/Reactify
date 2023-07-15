@@ -257,7 +257,7 @@ form p {
 a {
     text-decoration: none;
 }
-.api-inputs{
+.api-inputs {
     margin-top: 15px;
 }
 .remove-btn {
@@ -269,7 +269,7 @@ a {
     text-align: center;
     justify-content: center;
     padding: 5px;
-    color: rgba(255, 255, 255,0.7);
+    color: rgba(255, 255, 255, 0.7);
     font-size: 16px;
     border-radius: 6px;
     font-weight: 500;
@@ -278,11 +278,13 @@ a {
     padding: 11px;
     letter-spacing: -0.54px;
 }
-.container-field-flex{
-    display: flex;gap: 10px;
+.container-field-flex {
+    display: flex;
+    gap: 10px;
 }
-.small-input{
-    padding: 12px;font-size: 16px;
+.small-input {
+    padding: 12px;
+    font-size: 16px;
     border-radius: 8px;
 }
 .remove-btn img {
@@ -290,11 +292,11 @@ a {
     width: 22px;
     opacity: 0.75;
 }
-.remove-btn:hover img{ 
+.remove-btn:hover img {
     opacity: 1;
 }
-.remove-btn.secondary{
-background-color: rgba(69, 69, 69,0.2);
+.remove-btn.secondary {
+    background-color: rgba(69, 69, 69, 0.2);
     /* border: 1px solid #fff; */
 }
 .typeOf-App {

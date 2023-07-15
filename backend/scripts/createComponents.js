@@ -3,7 +3,7 @@ module.exports = function createComponents(name) {
 import React from 'react';
 const ${name} = () => {
     return (
-        <div>
+        <div className="max-container">
             <h1>${name}</h1>
         </div>
     );

@@ -2,6 +2,9 @@ module.exports = function createRoutes(pages) {
     return `
     import React, { useState, useEffect } from "react";
                 import { Routes, Route } from "react-router-dom";
+                import Tabs from "../components/Tabs";
+                import ReactifyHeader from "../components/ReactifyHeader";
+                import ReactifyFooter from "../components/ReactifyFooter";
                 // import pages name dynamically from the pages directory
                 ${pages
                     .map(
@@ -16,6 +19,7 @@ module.exports = function createRoutes(pages) {
                             `{
                             path: "/${page.name.toLowerCase()}",
                             exact: true,
+                            name: "${page.name}",
                             element: <${page.name} />,
                             private: false,
                         },`
@@ -26,6 +30,8 @@ module.exports = function createRoutes(pages) {
                 export default function Navigation() {
                     return (
                         <>
+                        <ReactifyHeader />
+                        <Tabs routes={routes} />
                             <Routes>
                                 {routes.map((route, index) => (
                                 <>
@@ -33,6 +39,7 @@ module.exports = function createRoutes(pages) {
                                 </>
                                 ))}
                             </Routes>
+                            <ReactifyFooter />
                         </>
 
                     )

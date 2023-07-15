@@ -4,9 +4,11 @@ module.exports = function createPages(name) {
 
     const ${name} = () => {
       return (
-        <div>
-          <h1>${name} Page</h1>
+        <div className="page | max-container">
+        <div className="page-header">
+          ${name} Page
         </div>
+      </div>
       );
     };
     

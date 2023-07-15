@@ -7,6 +7,9 @@ const createComponents = require("../scripts/createComponents");
 const createPages = require("../scripts/createPages");
 const createRoutes = require("../scripts/createRoutes");
 const createServiceFileContent = require("../scripts/createServiceFileContent");
+const reactifyHeader = require("../scripts/reactifyHeader");
+const reactifyFooter = require("../scripts/reactifyFooter");
+const tabs = require("../scripts/tabs");
 
 // Function to handle form submission and generate React app
 exports.generateReactApp = async (req, res) => {
@@ -60,6 +63,31 @@ exports.generateReactApp = async (req, res) => {
                     createComponents(name)
                 );
             });
+
+            // create two more files in components directory by name reactifyHeader.js and reactifyFooter.js
+            fs.writeFileSync(
+                path.join(componentsDirectory, "ReactifyHeader.js"),
+                reactifyHeader,
+                {
+                    flag: "w",
+                }
+            );
+            fs.writeFileSync(
+                path.join(componentsDirectory, "ReactifyFooter.js"),
+                reactifyFooter,
+                {
+                    flag: "w",
+                }
+            );
+            fs.writeFileSync(
+                path.join(componentsDirectory, "Tabs.js"),
+                tabs,
+                {
+                    flag: "w",
+                }
+            );
+
+
 
             const pagesDirectory = path.join(appDirectory, "src/pages");
             fs.mkdirSync(pagesDirectory, { recursive: true });
